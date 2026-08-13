@@ -47,7 +47,7 @@ async function run(): Promise<void> {
   if (saved) {
     await writeSummary("saved", matchedKey, summarizeFiles(relDir), saveKey);
   } else {
-    await writeSummary("save failed (another job may hold the key)", matchedKey, summarizeFiles(relDir), saveKey);
+    await writeSummary("failed", matchedKey, summarizeFiles(relDir), saveKey);
   }
 }
 
@@ -60,7 +60,7 @@ async function writeSummary(
   const fileLines = files
     .map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`)
     .join(", ");
-  core.summary.addHeading("GitFit geo cache", 3);
+  core.summary.addHeading("GitFit geo-detect cache", 3);
   core.summary.addTable([
     [{ data: "Item", header: true }, { data: "Value", header: true }],
     ["Status", status],

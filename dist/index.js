@@ -66893,10 +66893,10 @@ async function run() {
     fileLines = fileSummary.map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`).join(", ");
   }
   const summary2 = parseDetectSummary(stdout);
-  summary.addHeading("GitFit geo detect", 3);
+  summary.addHeading("GitFit geo-detect", 3);
   summary.addTable([
     [{ data: "Item", header: true }, { data: "Value", header: true }],
-    ["Status", detectFailed ? "\u274C detect failed" : "\u2705 detect ok"],
+    ["Status", detectFailed ? "failed" : "ok"],
     ["DB path", inputs.dbPath],
     ["Processed / Skipped / Errors", `${summary2.processed} / ${summary2.skipped} / ${summary2.errors}`],
     ["AMap key", inputs.amapKey ? "configured" : "missing (China coords fail)"],

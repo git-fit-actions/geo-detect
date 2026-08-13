@@ -141,10 +141,10 @@ async function run(): Promise<void> {
   }
   const summary = parseDetectSummary(stdout);
 
-  core.summary.addHeading("GitFit geo detect", 3);
+  core.summary.addHeading("GitFit geo-detect", 3);
   core.summary.addTable([
     [{ data: "Item", header: true }, { data: "Value", header: true }],
-    ["Status", detectFailed ? "❌ detect failed" : "✅ detect ok"],
+    ["Status", detectFailed ? "failed" : "ok"],
     ["DB path", inputs.dbPath],
     ["Processed / Skipped / Errors", `${summary.processed} / ${summary.skipped} / ${summary.errors}`],
     ["AMap key", inputs.amapKey ? "configured" : "missing (China coords fail)"],

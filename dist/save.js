@@ -67363,12 +67363,12 @@ async function run() {
   if (saved) {
     await writeSummary("saved", matchedKey, summarizeFiles(relDir), saveKey);
   } else {
-    await writeSummary("save failed (another job may hold the key)", matchedKey, summarizeFiles(relDir), saveKey);
+    await writeSummary("failed", matchedKey, summarizeFiles(relDir), saveKey);
   }
 }
 async function writeSummary(status, matchedKey, files, saveKey) {
   const fileLines = files.map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`).join(", ");
-  summary.addHeading("GitFit geo cache", 3);
+  summary.addHeading("GitFit geo-detect cache", 3);
   summary.addTable([
     [{ data: "Item", header: true }, { data: "Value", header: true }],
     ["Status", status],
