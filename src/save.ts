@@ -8,6 +8,7 @@ import {
   normalizeRel,
   shortCacheKey,
   summarizeFiles,
+  summaryTable,
 } from "./shared";
 
 async function run(): Promise<void> {
@@ -62,15 +63,20 @@ async function writeSummary(
     .map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`)
     .join(", ");
   core.summary.addHeading("GitFit geo-detect cache", 3);
-  core.summary.addTable([
-    ["Status", "Restored key", "Save key", "Cache files"],
-    [
-      status,
-      shortCacheKey(matchedKey) || "none (miss)",
-      shortCacheKey(saveKey || "") || "—",
-      fileLines || "—",
-    ],
-  ]);
+  core.summary.addRaw(
+    summaryTable(
+      ["Status", "Restored key", "Save key", "Cache files"],
+      [
+        [
+          status,
+          shortCacheKey(matchedKey) || "none (miss)",
+          shortCacheKey(saveKey || "") || "—",
+          fileLines || "—",
+        ],
+      ],
+      ["center", "center", "center", "left"]
+    )
+  );
   await core.summary.write();
 }
 

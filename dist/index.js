@@ -66733,6 +66733,15 @@ function isDirectory2(p) {
     return false;
   }
 }
+function summaryTable(headers, rows, alignments) {
+  const escape2 = (s) => s.replace(/\|/g, "\\|");
+  const separator = headers.map((_, i) => alignments[i] === "center" ? ":---:" : "---").join(" | ");
+  const lines = [`| ${headers.map(escape2).join(" | ")} |`, `| ${separator} |`];
+  for (const row of rows) {
+    lines.push(`| ${row.map(escape2).join(" | ")} |`);
+  }
+  return lines.join("\n");
+}
 function generateSHA256SUMS(dir) {
   if (!isDirectory2(dir)) {
     return;
@@ -66894,17 +66903,22 @@ async function run() {
   }
   const summary2 = parseDetectSummary(stdout);
   summary.addHeading("GitFit geo-detect", 3);
-  summary.addTable([
-    ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
-    [
-      detectFailed ? "failed" : "ok",
-      inputs.dbPath,
-      `${summary2.processed} / ${summary2.skipped} / ${summary2.errors}`,
-      inputs.amapKey ? "configured" : "missing (China coords fail)",
-      cacheEnabled ? inputs.cacheDir : "no",
-      fileLines || "\u2014"
-    ]
-  ]);
+  summary.addRaw(
+    summaryTable(
+      ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
+      [
+        [
+          detectFailed ? "failed" : "ok",
+          inputs.dbPath,
+          `${summary2.processed} / ${summary2.skipped} / ${summary2.errors}`,
+          inputs.amapKey ? "configured" : "missing (China coords fail)",
+          cacheEnabled ? inputs.cacheDir : "no",
+          fileLines || "\u2014"
+        ]
+      ],
+      ["center", "left", "center", "center", "left", "left"]
+    )
+  );
   await summary.write();
 }
 run().catch((err) => {

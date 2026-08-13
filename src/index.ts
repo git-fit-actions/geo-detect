@@ -6,6 +6,7 @@ import {
   generateSHA256SUMS,
   normalizeRel,
   summarizeFiles,
+  summaryTable,
   validateNumber,
   validatePath,
   validateStrategy,
@@ -142,17 +143,22 @@ async function run(): Promise<void> {
   const summary = parseDetectSummary(stdout);
 
   core.summary.addHeading("GitFit geo-detect", 3);
-  core.summary.addTable([
-    ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
-    [
-      detectFailed ? "failed" : "ok",
-      inputs.dbPath,
-      `${summary.processed} / ${summary.skipped} / ${summary.errors}`,
-      inputs.amapKey ? "configured" : "missing (China coords fail)",
-      cacheEnabled ? inputs.cacheDir : "no",
-      fileLines || "—",
-    ],
-  ]);
+  core.summary.addRaw(
+    summaryTable(
+      ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
+      [
+        [
+          detectFailed ? "failed" : "ok",
+          inputs.dbPath,
+          `${summary.processed} / ${summary.skipped} / ${summary.errors}`,
+          inputs.amapKey ? "configured" : "missing (China coords fail)",
+          cacheEnabled ? inputs.cacheDir : "no",
+          fileLines || "—",
+        ],
+      ],
+      ["center", "left", "center", "center", "left", "left"]
+    )
+  );
   await core.summary.write();
 
   // Even on detect failure, cache should still be saved (post) if cache files exist.

@@ -67269,6 +67269,15 @@ function isDirectory2(p) {
     return false;
   }
 }
+function summaryTable(headers, rows, alignments) {
+  const escape2 = (s) => s.replace(/\|/g, "\\|");
+  const separator = headers.map((_, i) => alignments[i] === "center" ? ":---:" : "---").join(" | ");
+  const lines = [`| ${headers.map(escape2).join(" | ")} |`, `| ${separator} |`];
+  for (const row of rows) {
+    lines.push(`| ${row.map(escape2).join(" | ")} |`);
+  }
+  return lines.join("\n");
+}
 function generateSHA256SUMS(dir) {
   if (!isDirectory2(dir)) {
     return;
@@ -67375,15 +67384,20 @@ async function run() {
 async function writeSummary(status, matchedKey, files, saveKey) {
   const fileLines = files.map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`).join(", ");
   summary.addHeading("GitFit geo-detect cache", 3);
-  summary.addTable([
-    ["Status", "Restored key", "Save key", "Cache files"],
-    [
-      status,
-      shortCacheKey(matchedKey) || "none (miss)",
-      shortCacheKey(saveKey || "") || "\u2014",
-      fileLines || "\u2014"
-    ]
-  ]);
+  summary.addRaw(
+    summaryTable(
+      ["Status", "Restored key", "Save key", "Cache files"],
+      [
+        [
+          status,
+          shortCacheKey(matchedKey) || "none (miss)",
+          shortCacheKey(saveKey || "") || "\u2014",
+          fileLines || "\u2014"
+        ]
+      ],
+      ["center", "center", "center", "left"]
+    )
+  );
   await summary.write();
 }
 run().catch((err) => {

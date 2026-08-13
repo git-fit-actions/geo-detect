@@ -15,6 +15,7 @@ const {
   normalizeRel,
   shortCacheKey,
   summarizeFiles,
+  summaryTable,
   validateNumber,
   validatePath,
   validateStrategy,
@@ -169,4 +170,20 @@ test("shortCacheKey: strips namespace, truncates hash to 12 hex", () => {
 
 test("shortCacheKey: empty key stays empty", () => {
   assert.equal(shortCacheKey(""), "");
+});
+
+test("summaryTable: mixed alignment separator (left + centered)", () => {
+  const md = summaryTable(
+    ["Status", "DB path", "Cache files"],
+    [["ok", "data/db/workouts.db", "a (3 lines)"]],
+    ["center", "left", "left"]
+  );
+  assert.match(md, /\| Status \| DB path \| Cache files \|/);
+  assert.match(md, /\| :---: \| --- \| --- \|/);
+  assert.match(md, /\| ok \| data\/db\/workouts\.db \| a \(3 lines\) \|/);
+});
+
+test("summaryTable: escapes pipe characters in cells", () => {
+  const md = summaryTable(["A"], [["x|y"]], ["left"]);
+  assert.match(md, /x\\\|y/);
 });

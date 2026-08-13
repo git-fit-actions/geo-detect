@@ -92,6 +92,28 @@ export function isFile(p: string): boolean {
 }
 
 /**
+ * Build a markdown table for the step summary (GFM). Per-column alignment
+ * follows the org convention: short categorical values / numbers / tokens are
+ * centered, paths / labels / long text are left-aligned. Pipe characters are
+ * escaped so cell values cannot break the layout.
+ */
+export function summaryTable(
+  headers: string[],
+  rows: string[][],
+  alignments: Array<"left" | "center" | "right">
+): string {
+  const escape = (s: string): string => s.replace(/\|/g, "\\|");
+  const separator = headers
+    .map((_, i) => (alignments[i] === "center" ? ":---:" : "---"))
+    .join(" | ");
+  const lines = [`| ${headers.map(escape).join(" | ")} |`, `| ${separator} |`];
+  for (const row of rows) {
+    lines.push(`| ${row.map(escape).join(" | ")} |`);
+  }
+  return lines.join("\n");
+}
+
+/**
  * Generate `SHA256SUMS` inside `dir` listing every regular file under it
  * (relative paths), the standard git-fit data-store format.
  */

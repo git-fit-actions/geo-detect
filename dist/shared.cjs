@@ -38,6 +38,7 @@ __export(shared_exports, {
   normalizeRel: () => normalizeRel,
   shortCacheKey: () => shortCacheKey,
   summarizeFiles: () => summarizeFiles,
+  summaryTable: () => summaryTable,
   validateNumber: () => validateNumber,
   validatePath: () => validatePath,
   validateStrategy: () => validateStrategy
@@ -94,6 +95,15 @@ function isFile(p) {
   } catch {
     return false;
   }
+}
+function summaryTable(headers, rows, alignments) {
+  const escape = (s) => s.replace(/\|/g, "\\|");
+  const separator = headers.map((_, i) => alignments[i] === "center" ? ":---:" : "---").join(" | ");
+  const lines = [`| ${headers.map(escape).join(" | ")} |`, `| ${separator} |`];
+  for (const row of rows) {
+    lines.push(`| ${row.map(escape).join(" | ")} |`);
+  }
+  return lines.join("\n");
 }
 function generateSHA256SUMS(dir) {
   if (!isDirectory(dir)) {
@@ -172,6 +182,7 @@ function summarizeFiles(dir) {
   normalizeRel,
   shortCacheKey,
   summarizeFiles,
+  summaryTable,
   validateNumber,
   validatePath,
   validateStrategy
