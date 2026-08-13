@@ -36,6 +36,7 @@ __export(shared_exports, {
   isDirectory: () => isDirectory,
   isFile: () => isFile,
   normalizeRel: () => normalizeRel,
+  shortCacheKey: () => shortCacheKey,
   summarizeFiles: () => summarizeFiles,
   validateNumber: () => validateNumber,
   validatePath: () => validatePath,
@@ -73,6 +74,12 @@ function buildCacheKeys(cacheKey) {
     sentinel: `${cacheKey}-sentinel`,
     prefix: `${cacheKey}-`
   };
+}
+function shortCacheKey(key) {
+  if (!key) {
+    return "";
+  }
+  return key.replace(/^GitFit-geo-v0-/, "").slice(0, 12);
 }
 function isDirectory(p) {
   try {
@@ -163,6 +170,7 @@ function summarizeFiles(dir) {
   isDirectory,
   isFile,
   normalizeRel,
+  shortCacheKey,
   summarizeFiles,
   validateNumber,
   validatePath,

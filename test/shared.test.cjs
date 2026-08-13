@@ -13,6 +13,7 @@ const {
   isDirectory,
   isFile,
   normalizeRel,
+  shortCacheKey,
   summarizeFiles,
   validateNumber,
   validatePath,
@@ -159,4 +160,13 @@ test("normalizeRel: leaves absolute path when outside workspace", () => {
   } finally {
     delete process.env.GITHUB_WORKSPACE;
   }
+});
+
+test("shortCacheKey: strips namespace, truncates hash to 12 hex", () => {
+  const full = "GitFit-geo-v0-be157841103de268aaebfc7e84ab4d547b1ec0608f5461da784578554db81fe1";
+  assert.equal(shortCacheKey(full), "be157841103d");
+});
+
+test("shortCacheKey: empty key stays empty", () => {
+  assert.equal(shortCacheKey(""), "");
 });

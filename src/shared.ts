@@ -62,6 +62,19 @@ export function buildCacheKeys(cacheKey: string): CacheKeys {
   };
 }
 
+/**
+ * Compress a geo cache key for the horizontal summary table: strip the
+ * `GitFit-geo-v0-` namespace prefix (derivable from context) and truncate the
+ * content hash to 12 hex chars. Empty key stays empty (callers render the
+ * "none"/miss placeholder).
+ */
+export function shortCacheKey(key: string): string {
+  if (!key) {
+    return "";
+  }
+  return key.replace(/^GitFit-geo-v0-/, "").slice(0, 12);
+}
+
 export function isDirectory(p: string): boolean {
   try {
     return fs.statSync(p).isDirectory();

@@ -67256,6 +67256,12 @@ function buildCacheKeys(cacheKey) {
     prefix: `${cacheKey}-`
   };
 }
+function shortCacheKey(key) {
+  if (!key) {
+    return "";
+  }
+  return key.replace(/^GitFit-geo-v0-/, "").slice(0, 12);
+}
 function isDirectory2(p) {
   try {
     return fs6.statSync(p).isDirectory();
@@ -67370,11 +67376,13 @@ async function writeSummary(status, matchedKey, files, saveKey) {
   const fileLines = files.map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`).join(", ");
   summary.addHeading("GitFit geo-detect cache", 3);
   summary.addTable([
-    [{ data: "Item", header: true }, { data: "Value", header: true }],
-    ["Status", status],
-    ["Restored key", matchedKey || "none (miss)"],
-    ["Save key", saveKey || "\u2014"],
-    ["Cache files", fileLines || "\u2014"]
+    ["Status", "Restored key", "Save key", "Cache files"],
+    [
+      status,
+      shortCacheKey(matchedKey) || "none (miss)",
+      shortCacheKey(saveKey || "") || "\u2014",
+      fileLines || "\u2014"
+    ]
   ]);
   await summary.write();
 }

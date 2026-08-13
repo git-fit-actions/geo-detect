@@ -143,13 +143,15 @@ async function run(): Promise<void> {
 
   core.summary.addHeading("GitFit geo-detect", 3);
   core.summary.addTable([
-    [{ data: "Item", header: true }, { data: "Value", header: true }],
-    ["Status", detectFailed ? "failed" : "ok"],
-    ["DB path", inputs.dbPath],
-    ["Processed / Skipped / Errors", `${summary.processed} / ${summary.skipped} / ${summary.errors}`],
-    ["AMap key", inputs.amapKey ? "configured" : "missing (China coords fail)"],
-    ["Cache enabled", cacheEnabled ? inputs.cacheDir : "no"],
-    ["Cache files", fileLines || "—"],
+    ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
+    [
+      detectFailed ? "failed" : "ok",
+      inputs.dbPath,
+      `${summary.processed} / ${summary.skipped} / ${summary.errors}`,
+      inputs.amapKey ? "configured" : "missing (China coords fail)",
+      cacheEnabled ? inputs.cacheDir : "no",
+      fileLines || "—",
+    ],
   ]);
   await core.summary.write();
 

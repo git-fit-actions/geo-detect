@@ -6,6 +6,7 @@ import {
   generateSHA256SUMS,
   isDirectory,
   normalizeRel,
+  shortCacheKey,
   summarizeFiles,
 } from "./shared";
 
@@ -62,11 +63,13 @@ async function writeSummary(
     .join(", ");
   core.summary.addHeading("GitFit geo-detect cache", 3);
   core.summary.addTable([
-    [{ data: "Item", header: true }, { data: "Value", header: true }],
-    ["Status", status],
-    ["Restored key", matchedKey || "none (miss)"],
-    ["Save key", saveKey || "—"],
-    ["Cache files", fileLines || "—"],
+    ["Status", "Restored key", "Save key", "Cache files"],
+    [
+      status,
+      shortCacheKey(matchedKey) || "none (miss)",
+      shortCacheKey(saveKey || "") || "—",
+      fileLines || "—",
+    ],
   ]);
   await core.summary.write();
 }

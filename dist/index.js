@@ -66895,13 +66895,15 @@ async function run() {
   const summary2 = parseDetectSummary(stdout);
   summary.addHeading("GitFit geo-detect", 3);
   summary.addTable([
-    [{ data: "Item", header: true }, { data: "Value", header: true }],
-    ["Status", detectFailed ? "failed" : "ok"],
-    ["DB path", inputs.dbPath],
-    ["Processed / Skipped / Errors", `${summary2.processed} / ${summary2.skipped} / ${summary2.errors}`],
-    ["AMap key", inputs.amapKey ? "configured" : "missing (China coords fail)"],
-    ["Cache enabled", cacheEnabled ? inputs.cacheDir : "no"],
-    ["Cache files", fileLines || "\u2014"]
+    ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
+    [
+      detectFailed ? "failed" : "ok",
+      inputs.dbPath,
+      `${summary2.processed} / ${summary2.skipped} / ${summary2.errors}`,
+      inputs.amapKey ? "configured" : "missing (China coords fail)",
+      cacheEnabled ? inputs.cacheDir : "no",
+      fileLines || "\u2014"
+    ]
   ]);
   await summary.write();
 }
