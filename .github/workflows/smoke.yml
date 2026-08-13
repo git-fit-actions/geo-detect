@@ -1,0 +1,104 @@
+name: Smoke geo-detect
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      git-fit-version:
+        description: >
+          git-fit gem version constraint to smoke against (e.g. "~> 0.13.0").
+          Empty defaults to the latest release.
+        required: false
+        default: ''
+
+permissions:
+  actions: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+
+      - name: Install git-fit gem (for the action to shell out to)
+        id: gem-install
+        run: |
+          mkdir -p /tmp/smoke-gem
+          cd /tmp/smoke-gem
+          bundle init
+          if [[ -n "${{ github.event.inputs.git-fit-version }}" ]]; then
+            bundle add git-fit --version "${{ github.event.inputs.git-fit-version }}"
+          else
+            bundle add git-fit
+          fi
+          echo "BUNDLE_GEMFILE=/tmp/smoke-gem/Gemfile" >> "$GITHUB_ENV"
+          echo "git-fit-version=$(bundle exec ruby -e 'print Gem.loaded_specs["git-fit"].version')" >> "$GITHUB_OUTPUT"
+
+      - name: Create throwaway DB (schema via first detect run) and preseed point cache
+        env:
+          GIT_FIT_DATABASE_PATH: data/db/smoke.db
+        run: |
+          # First run migrates the schema (0 activities → no network).
+          bundle exec git fit geo detect --limit 1
+          # Insert one activity with a known intl polyline (Paris). Two points
+          # 0.02° apart → both sampled by the 0.01° interval.
+          bundle exec ruby -rsequel -e '
+            require "git-fit"
+            db = Sequel.sqlite("data/db/smoke.db")
+            enc = GitFit::Geo::Polyline.encode([[48.8566, 2.3522], [48.8766, 2.3522]])
+            db[:activities].insert(run_id: "smoke_test", name: "smoke", summary_polyline: enc,
+                                   distance: 1000, moving_time: 600, elapsed_time: 600,
+                                   sport_category: "run", start_date: "2026-08-13T00:00:00Z")
+          '
+          # Preseed the exact ck keys the sampler will request → cache hit, no network.
+          mkdir -p data/cache/geo
+          printf '%s\n' \
+            '{"ck":"48.8566,2.3522","p":"France","source":"nominatim"}' \
+            '{"ck":"48.8766,2.3522","p":"France","source":"nominatim"}' \
+            > data/cache/geo/nominatim-points.jsonl
+
+      - name: Run geo-detect action
+        id: detect
+        uses: ./
+        with:
+          db-path: data/db/smoke.db
+          cache-dir: data/cache/geo
+          cache-key: GitFit-geo-v0-smoke-${{ github.run_id }}
+          detect-limit: '10'
+
+      - name: Assert detection result
+        id: assert
+        run: |
+          test -f data/db/smoke.db
+          DIVISIONS="$(bundle exec ruby -rsequel -e '
+            db = Sequel.sqlite("data/db/smoke.db")
+            print db[:activities].where(run_id: "smoke_test").get(:divisions) || ""
+          ')"
+          test -n "$DIVISIONS"
+          echo "divisions=$DIVISIONS"
+          grep -q 'France' data/cache/geo/nominatim-points.jsonl
+          test -f data/cache/geo/SHA256SUMS
+          test "$(wc -l < data/cache/geo/nominatim-points.jsonl)" = "2"
+
+      - name: Write smoke summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Smoke geo-detect"
+            echo ""
+            echo "| Item | Value |"
+            echo "|------|-------|"
+            echo "| git-fit version | \`${{ steps.gem-install.outputs.git-fit-version }}\` |"
+            echo "| version source | ${{ github.event.inputs.git-fit-version || 'latest (default)' }} |"
+            echo "| trigger | ${{ github.event_name }} |"
+            echo "| detect action | ${{ steps.detect.outcome == 'success' && '✅' || '❌' }} |"
+            echo "| assert | ${{ steps.assert.outcome == 'success' && '✅' || '❌' }} |"
+            echo "| cache key | \`GitFit-geo-v0-smoke-${{ github.run_id }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"

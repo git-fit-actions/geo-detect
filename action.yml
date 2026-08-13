@@ -1,0 +1,58 @@
+name: GitFit Geo Detect
+description: >
+  Detect administrative divisions for activities with GPS data.
+  Write-once: main restores the geo point cache and runs
+  `bundle exec git fit geo detect`; post saves the cache at the end of the
+  job, only when the job succeeded (post-if success()). No outputs are
+  available downstream — status is reported in the step summary.
+
+inputs:
+  db-path:
+    description: SQLite database path
+    required: false
+    default: data/db/git-fit.db
+  cache-dir:
+    description: >
+      Geo cache directory. Per-provider point files (amap-points.jsonl,
+      nominatim-points.jsonl) plus SHA256SUMS are written under this dir.
+      Empty string disables cache reads/writes and GHA cache.
+    required: false
+    default: data/cache/geo
+  cache-key:
+    description: >
+      Cache key namespace. Content hash of the cache files is appended
+      automatically at save. Sentinels follow the GitFit-*-v0-* discipline.
+    required: false
+    default: GitFit-geo-v0
+  amap-key:
+    description: >
+      AMap (Amap) API key for reverse geocoding China coordinates. Optional:
+      when missing, China coordinates fail (warned) and international
+      coordinates use Nominatim.
+    required: false
+  detect-limit:
+    description: Max activities to process
+    required: false
+    default: '200'
+  detect-batch:
+    description: Batch size
+    required: false
+    default: '20'
+  detect-strategy:
+    description: Sampling strategy (proportional|start_end)
+    required: false
+    default: proportional
+  detect-time:
+    description: Time budget in seconds
+    required: false
+    default: '300'
+  checkpoint:
+    description: Run WAL checkpoint after detect (git fit geo detect --checkpoint)
+    required: false
+    default: 'false'
+
+runs:
+  using: node24
+  main: dist/index.js
+  post: dist/save.js
+  post-if: success()

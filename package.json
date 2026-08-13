@@ -1,0 +1,23 @@
+{
+  "name": "git-fit-geo-detect",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GitHub Action for detecting administrative divisions via git fit geo detect",
+  "license": "MIT",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/index.js && esbuild src/save.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/save.js && esbuild src/shared.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/shared.cjs",
+    "build:check": "npm run build && git diff --exit-code -- dist/index.js dist/save.js dist/shared.cjs",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node --test test/*.test.cjs"
+  },
+  "dependencies": {
+    "@actions/cache": "6.2.0",
+    "@actions/core": "3.0.1",
+    "@actions/exec": "3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0"
+  }
+}
