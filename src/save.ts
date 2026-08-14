@@ -5,7 +5,10 @@ import {
   buildSummaryBlock,
   computeContentHash,
   generateSHA256SUMS,
+  glyphFor,
   isDirectory,
+  LEGEND,
+  needsLegend,
   normalizeRel,
   shortCacheKey,
   summarizeFiles,
@@ -68,13 +71,14 @@ async function writeSummary(
       ["Status", "Restored key", "Save key", "Cache files"],
       [
         [
-          status,
+          glyphFor(status),
           shortCacheKey(matchedKey) || "none (miss)",
           shortCacheKey(saveKey || "") || "—",
           fileLines || "—",
         ],
       ],
-      ["center", "center", "center", "left"]
+      ["center", "center", "center", "left"],
+      needsLegend([status]) ? LEGEND : undefined
     )
   );
   await core.summary.write();

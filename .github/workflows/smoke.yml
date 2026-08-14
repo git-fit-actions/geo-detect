@@ -2,7 +2,7 @@ name: Smoke geo-detect
 
 on:
   push:
-    branches: [master]
+    branches: [mainline]
     tags: ['v*']
   workflow_dispatch:
     inputs:

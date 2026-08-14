@@ -14,6 +14,9 @@ const {
   isFile,
   normalizeRel,
   buildSummaryBlock,
+  glyphFor,
+  LEGEND,
+  needsLegend,
   shortCacheKey,
   summarizeFiles,
   summaryTable,
@@ -199,4 +202,39 @@ test("buildSummaryBlock: pure markdown heading + blank line + table", () => {
   assert.match(md, /^### GitFit geo-detect\n\n\| Status \| DB path \|/);
   assert.match(md, /\n\| :---: \| --- \|\n\| ok \| data\/db\/workouts\.db \|$/);
   assert.ok(!md.includes("<h"), "no HTML heading");
+});
+
+test("buildSummaryBlock: appends legend footer after blank line", () => {
+  const md = buildSummaryBlock(
+    "geo-detect cache",
+    ["Status", "Save key"],
+    [["✅ saved", "abc"]],
+    ["center", "center"],
+    LEGEND
+  );
+  assert.match(md, /abc \|\n\n_✅ 正常产出/);
+});
+
+test("glyphFor: ok/neutral/fail statuses and unknown passthrough", () => {
+  assert.equal(glyphFor("ok"), "✅ ok");
+  assert.equal(glyphFor("saved"), "✅ saved");
+  assert.equal(glyphFor("skipped (unchanged)"), "⏭️ skipped (unchanged)");
+  assert.equal(glyphFor("miss"), "⏭️ miss");
+  assert.equal(glyphFor("failed"), "❌ failed");
+  assert.equal(glyphFor("unknown-thing"), "unknown-thing");
+});
+
+test("LEGEND: single shared line documents all three glyphs", () => {
+  assert.match(LEGEND, /✅/);
+  assert.match(LEGEND, /⏭️/);
+  assert.match(LEGEND, /❌/);
+  assert.ok(!LEGEND.includes("\n"), "legend is a single line");
+});
+
+test("needsLegend: true when any attention status present, false for normal", () => {
+  assert.equal(needsLegend(["failed"]), true);
+  assert.equal(needsLegend(["miss", "ok"]), true);
+  assert.equal(needsLegend(["ok"]), false);
+  assert.equal(needsLegend(["saved", "unchanged", "skipped (unchanged)"]), false);
+  assert.equal(needsLegend([]), false);
 });

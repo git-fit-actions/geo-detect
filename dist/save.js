@@ -67278,10 +67278,33 @@ function summaryTable(headers, rows, alignments) {
   }
   return lines.join("\n");
 }
-function buildSummaryBlock(heading, headers, rows, alignments) {
-  return `### GitFit ${heading}
+function buildSummaryBlock(heading, headers, rows, alignments, footer) {
+  const block = `### GitFit ${heading}
 
 ${summaryTable(headers, rows, alignments)}`;
+  return footer ? `${block}
+
+${footer}` : block;
+}
+var LEGEND = "_\u2705 \u6B63\u5E38\u4EA7\u51FA \xB7 \u23ED\uFE0F \u9884\u6599\u5185\u65E0\u53D8\u5316/\u515C\u5E95 \xB7 \u274C \u5931\u8D25_";
+var GLYPH_OK = /* @__PURE__ */ new Set(["hit", "ok", "saved", "imported", "attempted", "changed", "pushed", "present", "cache"]);
+var GLYPH_SKIP = /* @__PURE__ */ new Set(["miss", "skipped", "unchanged", "none", "git"]);
+var GLYPH_FAIL = /* @__PURE__ */ new Set(["failed", "errors", "missing"]);
+var LEGEND_TRIGGER = /* @__PURE__ */ new Set(["miss", "failed", "errors", "missing"]);
+function needsLegend(statuses) {
+  return statuses.some((s) => LEGEND_TRIGGER.has(s.split(/\s/)[0]));
+}
+function glyphFor(status) {
+  if (GLYPH_OK.has(status) || GLYPH_OK.has(status.split(/\s/)[0])) {
+    return `\u2705 ${status}`;
+  }
+  if (GLYPH_SKIP.has(status) || GLYPH_SKIP.has(status.split(/\s/)[0])) {
+    return `\u23ED\uFE0F ${status}`;
+  }
+  if (GLYPH_FAIL.has(status) || GLYPH_FAIL.has(status.split(/\s/)[0])) {
+    return `\u274C ${status}`;
+  }
+  return status;
 }
 function generateSHA256SUMS(dir) {
   if (!isDirectory2(dir)) {
@@ -67394,13 +67417,14 @@ async function writeSummary(status, matchedKey, files, saveKey) {
       ["Status", "Restored key", "Save key", "Cache files"],
       [
         [
-          status,
+          glyphFor(status),
           shortCacheKey(matchedKey) || "none (miss)",
           shortCacheKey(saveKey || "") || "\u2014",
           fileLines || "\u2014"
         ]
       ],
-      ["center", "center", "center", "left"]
+      ["center", "center", "center", "left"],
+      needsLegend([status]) ? LEGEND : void 0
     )
   );
   await summary.write();

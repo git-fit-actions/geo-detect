@@ -5,6 +5,9 @@ import {
   buildCacheKeys,
   buildSummaryBlock,
   generateSHA256SUMS,
+  glyphFor,
+  LEGEND,
+  needsLegend,
   normalizeRel,
   summarizeFiles,
   validateNumber,
@@ -148,7 +151,7 @@ async function run(): Promise<void> {
       ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
       [
         [
-          detectFailed ? "failed" : "ok",
+          glyphFor(detectFailed ? "failed" : "ok"),
           inputs.dbPath,
           `${summary.processed} / ${summary.skipped} / ${summary.errors}`,
           inputs.amapKey ? "configured" : "missing (China coords fail)",
@@ -156,7 +159,8 @@ async function run(): Promise<void> {
           fileLines || "—",
         ],
       ],
-      ["center", "left", "center", "center", "left", "left"]
+      ["center", "left", "center", "center", "left", "left"],
+      needsLegend([detectFailed ? "failed" : "ok"]) ? LEGEND : undefined
     )
   );
   await core.summary.write();
