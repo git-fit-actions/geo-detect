@@ -2,13 +2,13 @@ import * as core from "@actions/core";
 import * as cache from "@actions/cache";
 import {
   buildCacheKeys,
+  buildSummaryBlock,
   computeContentHash,
   generateSHA256SUMS,
   isDirectory,
   normalizeRel,
   shortCacheKey,
   summarizeFiles,
-  summaryTable,
 } from "./shared";
 
 async function run(): Promise<void> {
@@ -62,9 +62,9 @@ async function writeSummary(
   const fileLines = files
     .map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`)
     .join(", ");
-  core.summary.addHeading("GitFit geo-detect cache", 3);
   core.summary.addRaw(
-    summaryTable(
+    buildSummaryBlock(
+      "geo-detect cache",
       ["Status", "Restored key", "Save key", "Cache files"],
       [
         [

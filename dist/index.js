@@ -66742,6 +66742,11 @@ function summaryTable(headers, rows, alignments) {
   }
   return lines.join("\n");
 }
+function buildSummaryBlock(heading, headers, rows, alignments) {
+  return `### GitFit ${heading}
+
+${summaryTable(headers, rows, alignments)}`;
+}
 function generateSHA256SUMS(dir) {
   if (!isDirectory2(dir)) {
     return;
@@ -66902,9 +66907,9 @@ async function run() {
     fileLines = fileSummary.map((f) => `${f.name} (${f.lines.toLocaleString()} lines)`).join(", ");
   }
   const summary2 = parseDetectSummary(stdout);
-  summary.addHeading("GitFit geo-detect", 3);
   summary.addRaw(
-    summaryTable(
+    buildSummaryBlock(
+      "geo-detect",
       ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
       [
         [

@@ -3,10 +3,10 @@ import * as cache from "@actions/cache";
 import * as exec from "@actions/exec";
 import {
   buildCacheKeys,
+  buildSummaryBlock,
   generateSHA256SUMS,
   normalizeRel,
   summarizeFiles,
-  summaryTable,
   validateNumber,
   validatePath,
   validateStrategy,
@@ -142,9 +142,9 @@ async function run(): Promise<void> {
   }
   const summary = parseDetectSummary(stdout);
 
-  core.summary.addHeading("GitFit geo-detect", 3);
   core.summary.addRaw(
-    summaryTable(
+    buildSummaryBlock(
+      "geo-detect",
       ["Status", "DB path", "Processed / Skipped / Errors", "AMap key", "Cache enabled", "Cache files"],
       [
         [

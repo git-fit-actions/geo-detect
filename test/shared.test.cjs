@@ -13,6 +13,7 @@ const {
   isDirectory,
   isFile,
   normalizeRel,
+  buildSummaryBlock,
   shortCacheKey,
   summarizeFiles,
   summaryTable,
@@ -186,4 +187,16 @@ test("summaryTable: mixed alignment separator (left + centered)", () => {
 test("summaryTable: escapes pipe characters in cells", () => {
   const md = summaryTable(["A"], [["x|y"]], ["left"]);
   assert.match(md, /x\\\|y/);
+});
+
+test("buildSummaryBlock: pure markdown heading + blank line + table", () => {
+  const md = buildSummaryBlock(
+    "geo-detect",
+    ["Status", "DB path"],
+    [["ok", "data/db/workouts.db"]],
+    ["center", "left"]
+  );
+  assert.match(md, /^### GitFit geo-detect\n\n\| Status \| DB path \|/);
+  assert.match(md, /\n\| :---: \| --- \|\n\| ok \| data\/db\/workouts\.db \|$/);
+  assert.ok(!md.includes("<h"), "no HTML heading");
 });

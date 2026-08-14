@@ -31,6 +31,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var shared_exports = {};
 __export(shared_exports, {
   buildCacheKeys: () => buildCacheKeys,
+  buildSummaryBlock: () => buildSummaryBlock,
   computeContentHash: () => computeContentHash,
   generateSHA256SUMS: () => generateSHA256SUMS,
   isDirectory: () => isDirectory,
@@ -105,6 +106,11 @@ function summaryTable(headers, rows, alignments) {
   }
   return lines.join("\n");
 }
+function buildSummaryBlock(heading, headers, rows, alignments) {
+  return `### GitFit ${heading}
+
+${summaryTable(headers, rows, alignments)}`;
+}
 function generateSHA256SUMS(dir) {
   if (!isDirectory(dir)) {
     return;
@@ -175,6 +181,7 @@ function summarizeFiles(dir) {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   buildCacheKeys,
+  buildSummaryBlock,
   computeContentHash,
   generateSHA256SUMS,
   isDirectory,

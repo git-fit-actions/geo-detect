@@ -114,6 +114,21 @@ export function summaryTable(
 }
 
 /**
+ * Build a full step-summary block: `### GitFit <heading>` heading plus a blank
+ * line plus the GFM table. The whole block is pure markdown — mixing an HTML
+ * heading (`core.summary.addHeading`) with a markdown table would let the
+ * CommonMark HTML block swallow the table and render it as raw text.
+ */
+export function buildSummaryBlock(
+  heading: string,
+  headers: string[],
+  rows: string[][],
+  alignments: Array<"left" | "center" | "right">
+): string {
+  return `### GitFit ${heading}\n\n${summaryTable(headers, rows, alignments)}`;
+}
+
+/**
  * Generate `SHA256SUMS` inside `dir` listing every regular file under it
  * (relative paths), the standard git-fit data-store format.
  */
